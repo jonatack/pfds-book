@@ -17,11 +17,13 @@
            #:<stack>
            #:<_list>
            #:<custom-stack>
+           #:suffixes
            #:<set>
            #:<unbalanced-set>
            #:e-node
            #:tree
            #:insert
+           #:_remove
            #:_member
            )
   )
@@ -144,11 +146,19 @@
 (defparameter e-node 'e-node)
 (deftuple tree (left-node elem right-node))
 
+;; ex 2.1
+
+(defun suffixes (list)
+  (if list
+      (cons list (suffixes (rest list)))
+      (cons nil nil)))
+
 ;; Set interface
 
 ;; empty (already defined)
 ;; empty-p (already defined)
 (defgeneric insert (<container> elem set))
+(defgeneric _remove (<container> elem set))
 (defgeneric _member (<container> elem set))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -159,7 +169,8 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defclass <unbalanced-set> (<set>)
-    ((lt :initarg :lt :initform #'< :reader lt)))
+    ((lt :initarg :lt :initform #'< :reader lt)
+     (equ :initarg :equ :initform #'= :reader equ)))
   (defparameter <unbalanced-set> (make-instance '<unbalanced-set>)))
 
 (defmethod empty ((<i> <unbalanced-set>))
@@ -179,7 +190,41 @@
                      (tree left y (insert <i> x right))
                      set))))))
 
+(defun %insert-right (left-set right-set)
+  (smatch left-set
+          (e-node right-set)
+          ((tree left elem right)
+           (tree left elem (%insert-right right right-set)))))
+
+(defmethod _remove ((<i> <unbalanced-set>) x set)
+  (smatch set
+          (e-node (tree e-node x e-node))
+          ((tree left y right)
+           (let ((lt (lt <i>)))
+             (if (funcall lt x y)
+                 (tree (_remove <i> x left) y right)
+                 (if (funcall lt y x)
+                     (tree left y (_remove <i> x right))
+                     (%insert-right left right)))))))
+
 (defmethod _member ((<i> <unbalanced-set>) x set)
+  (smatch set
+          (e-node nil)
+          ((tree left y right)
+           (let ((lt (lt <i>)))
+             (if (funcall lt x y)
+                 (_member <i> x left)
+                 (if (funcall lt y x)
+                     (_member <i> x right)
+                     T))))))
+
+;; ex 2.2
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass <unbalanced-set-2-2> (<unbalanced-set>) ())
+  (defparameter <unbalanced-set-2-2> (make-instance '<unbalanced-set-2-2>)))
+
+(defmethod _member ((<i> <unbalanced-set-2-2>) x set)
   (smatch set
           (e-node nil)
           ((tree left y right)

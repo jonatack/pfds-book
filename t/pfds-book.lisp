@@ -25,7 +25,12 @@
 
 (test-stack <custom-stack>)
 
-;; TreeSet
+;; ex 2.1
+
+(is (suffixes '(4 3 2 1))
+    '((4 3 2 1) (3 2 1) (2 1) (1) ()))
+
+;; unbalanced-set
 
 (is (_member <unbalanced-set> 10 (tree e-node 10 e-node))
     T)
@@ -50,6 +55,29 @@
   (is (_member <unbalanced-set> 10 set2)
       T))
 
-;; TreeSet
+(defun test-set (<i>)
+  (let ((set (empty <i>))
+        (test-data '(8 3 20 -99 100 101 2 33 1 -4))
+        (first-half '(8 3 20 -99 100))
+        (second-half '(101 2 33 1 -4)))
+    (loop :for val :in first-half :do (is (_member <i> val set) nil))
+
+    (loop :for val :in first-half :do (setf set (insert <i> val set)))
+    (loop :for val :in second-half :do (is (_member <i> val set) nil))
+    (loop :for val :in first-half :do (is (_member <i> val set) T))
+
+    (loop :for val :in second-half :do (setf set (insert <i> val set)))
+    (loop :for val :in test-data :do (is (_member <i> val set) T))
+
+    (loop :for val :in first-half :do (setf set (_remove <i> val set)))
+    (loop :for val :in second-half :do (is (_member <i> val set) T))
+    (loop :for val :in first-half :do (is (_member <i> val set) nil))
+    (loop :for val :in second-half :do (setf set (_remove <i> val set)))
+
+    (is (empty-p <i> set) T)))
+
+(test-set <unbalanced-set>)
+
+;;  unbalanced-set
 
 (finalize)
