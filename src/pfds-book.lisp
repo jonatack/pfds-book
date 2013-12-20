@@ -18,7 +18,7 @@
            #:<_list>
            #:<custom-stack>
            #:<set>
-           #:<tree-set>
+           #:<unbalanced-set>
            #:e-node
            #:tree
            #:insert
@@ -155,36 +155,37 @@
   (defclass <set> (<container>) ())
   (defparameter <set> (make-instance '<set>)))
 
-;; TreeSet
+;; unbalanced-set
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass <tree-set> (<set>)
-    ((lt :initarg :lt :initform #'< :reader lt)
-     (gt :initarg :gt :initform #'> :reader gt)))
-  (defparameter <tree-set> (make-instance '<tree-set>)))
+  (defclass <unbalanced-set> (<set>)
+    ((lt :initarg :lt :initform #'< :reader lt)))
+  (defparameter <unbalanced-set> (make-instance '<unbalanced-set>)))
 
-(defmethod empty ((<i> <tree-set>))
+(defmethod empty ((<i> <unbalanced-set>))
   e-node)
 
-(defmethod empty-p ((<i> <tree-set>) set)
+(defmethod empty-p ((<i> <unbalanced-set>) set)
   (eq set e-node))
 
-(defmethod insert ((<i> <tree-set>) x set)
+(defmethod insert ((<i> <unbalanced-set>) x set)
   (smatch set
           (e-node (tree e-node x e-node))
           ((tree left y right)
-           (if (funcall (lt <i>) x y)
-               (tree (insert <i> x left) y right)
-               (if (funcall (gt <i>) x y)
-                   (tree left y (insert <i> x right))
-                   set)))))
+           (let ((lt (lt <i>)))
+             (if (funcall lt x y)
+                 (tree (insert <i> x left) y right)
+                 (if (funcall lt y x)
+                     (tree left y (insert <i> x right))
+                     set))))))
 
-(defmethod _member ((<i> <tree-set>) x set)
+(defmethod _member ((<i> <unbalanced-set>) x set)
   (smatch set
           (e-node nil)
           ((tree left y right)
-           (if (funcall (lt <i>) x y)
-               (_member <i> x left)
-               (if (funcall (gt <i>) x y)
-                   (_member <i> x right)
-                   T)))))
+           (let ((lt (lt <i>)))
+             (if (funcall lt x y)
+                 (_member <i> x left)
+                 (if (funcall lt y x)
+                     (_member <i> x right)
+                     T))))))

@@ -27,27 +27,27 @@
 
 ;; TreeSet
 
-(is (_member <tree-set> 10 (tree e-node 10 e-node))
+(is (_member <unbalanced-set> 10 (tree e-node 10 e-node))
     T)
-(is (_member <tree-set> 9 (tree e-node 10 e-node))
+(is (_member <unbalanced-set> 9 (tree e-node 10 e-node))
     nil)
-(is (_member <tree-set> 9 (tree (tree e-node 9 e-node) 10 e-node))
+(is (_member <unbalanced-set> 9 (tree (tree e-node 9 e-node) 10 e-node))
     T)
-(is (_member <tree-set> 9 (tree (tree e-node 7 e-node)
+(is (_member <unbalanced-set> 9 (tree (tree e-node 7 e-node)
                                 8
                                 (tree e-node 9 e-node)))
     T)
-(is (_member <tree-set> 6 (tree (tree e-node 7 e-node)
+(is (_member <unbalanced-set> 6 (tree (tree e-node 7 e-node)
                                 8
                                 (tree e-node 9 e-node)))
     nil)
 
-(let* ((empty-set (empty <tree-set>))
-       (set1 (insert <tree-set> -5 empty-set))
-       (set2 (insert <tree-set> 10 set1)))
-  (is (_member <tree-set> 3 set2)
+(let* ((empty-set (empty <unbalanced-set>))
+       (set1 (insert <unbalanced-set> -5 empty-set))
+       (set2 (insert <unbalanced-set> 10 set1)))
+  (is (_member <unbalanced-set> 3 set2)
       nil)
-  (is (_member <tree-set> 10 set2)
+  (is (_member <unbalanced-set> 10 set2)
       T))
 
 ;; TreeSet
