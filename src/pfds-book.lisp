@@ -163,8 +163,21 @@
      (gt :initarg :gt :initform #'> :reader gt)))
   (defparameter <tree-set> (make-instance '<tree-set>)))
 
-(defmethod insert ((<i> <tree-set>) elem set)
-  (error "not implemented"))
+(defmethod empty ((<i> <tree-set>))
+  e-node)
+
+(defmethod empty-p ((<i> <tree-set>) set)
+  (eq set e-node))
+
+(defmethod insert ((<i> <tree-set>) x set)
+  (smatch set
+          (e-node (tree e-node x e-node))
+          ((tree left y right)
+           (if (funcall (lt <i>) x y)
+               (tree (insert <i> x left) y right)
+               (if (funcall (gt <i>) x y)
+                   (tree left y (insert <i> x right))
+                   set)))))
 
 (defmethod _member ((<i> <tree-set>) x set)
   (smatch set

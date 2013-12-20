@@ -25,6 +25,8 @@
 
 (test-stack <custom-stack>)
 
+;; TreeSet
+
 (is (_member <tree-set> 10 (tree e-node 10 e-node))
     T)
 (is (_member <tree-set> 9 (tree e-node 10 e-node))
@@ -39,6 +41,14 @@
                                 8
                                 (tree e-node 9 e-node)))
     nil)
+
+(let* ((empty-set (empty <tree-set>))
+       (set1 (insert <tree-set> -5 empty-set))
+       (set2 (insert <tree-set> 10 set1)))
+  (is (_member <tree-set> 3 set2)
+      nil)
+  (is (_member <tree-set> 10 set2)
+      T))
 
 ;; TreeSet
 
